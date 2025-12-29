@@ -44,25 +44,42 @@ def crawl_freshdesk_portal(base_url):
         soup = get_soup(base_url)
         if not soup: return []
 
-    # 2. Find all Folder Links
-    # Freshdesk folder links usually contain "/support/solutions/folders/"
-    folder_links = []
+    # 2. Find all Category Links
+    # Freshdesk structure: Home -> Categories -> Folders -> Articles
+    # Categories usually have an ID in the URL, e.g. /support/solutions/47000...
+    category_links = []
     for a in soup.find_all('a', href=True):
-        if "/support/solutions/folders/" in a['href']:
-            full_link = a['href'] if a['href'].startswith('http') else f"{base_url}{a['href']}"
-            folder_links.append(full_link)
+        href = a['href']
+        # Rough heuristic for category links: /support/solutions/ + digits
+        if "/support/solutions/" in href and href.split("/")[-1].isdigit():
+             full_link = href if href.startswith('http') else f"{base_url}{href}"
+             category_links.append(full_link)
     
+    category_links = list(set(category_links))
+    logger.info(f"      found {len(category_links)} categories. Scanning folders...")
+
+    # 3. Visit each Category to find Folder Links
+    folder_links = []
+    for cat_url in category_links:
+        c_soup = get_soup(cat_url)
+        if not c_soup: continue
+        
+        for a in c_soup.find_all('a', href=True):
+            if "/support/solutions/folders/" in a['href']:
+                full_link = a['href'] if a['href'].startswith('http') else f"{base_url}{a['href']}"
+                folder_links.append(full_link)
+        time.sleep(0.2)
+
     # Remove duplicates
     folder_links = list(set(folder_links))
     logger.info(f"      found {len(folder_links)} folders. Scanning articles...")
 
-    # 3. Visit each Folder to find Articles
+    # 4. Visit each Folder to find Articles
     for i, folder_url in enumerate(folder_links):
         f_soup = get_soup(folder_url)
         if not f_soup: continue
         
         # Find Article Links inside the folder
-        # Freshdesk article links contain "/support/solutions/articles/"
         found_in_folder = 0
         for a in f_soup.find_all('a', href=True):
             if "/support/solutions/articles/" in a['href']:

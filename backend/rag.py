@@ -1,4 +1,5 @@
 import os
+from tenacity import retry, stop_after_attempt, wait_exponential
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -7,12 +8,22 @@ from transformers import pipeline
 
 # Placeholder for Digital Umuganda Model loading
 # from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+# from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 # model_name = "DigitalUmuganda/Joeynmt-kin-en" 
+
+class RobustGoogleGenerativeAIEmbeddings(GoogleGenerativeAIEmbeddings):
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=60))
+    def embed_documents(self, texts, *args, **kwargs):
+        return super().embed_documents(texts, *args, **kwargs)
+
+    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=2, max=60))
+    def embed_query(self, text, *args, **kwargs):
+        return super().embed_query(text, *args, **kwargs) 
 
 class RAGPipeline:
     def __init__(self):
         self.vector_store = None
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001") # Requires GOOGLE_API_KEY
+        self.embeddings = RobustGoogleGenerativeAIEmbeddings(model="models/embedding-001") # Requires GOOGLE_API_KEY
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro", convert_system_message_to_human=True)
         
         # Initialize specialized Kinyarwanda models if needed here
