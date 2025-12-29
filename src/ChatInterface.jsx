@@ -35,9 +35,9 @@ const ChatInterface = () => {
   // Welcome message
   useEffect(() => {
     const welcomeMessages = {
-      en: "👋 Hello! I'm your Irembo assistant. I can help you with IremboGov, One Stop Center, and IremboPlus services. How can I help you today?",
-      fr: "👋 Bonjour! Je suis votre assistant Irembo. Je peux vous aider avec les services IremboGov, One Stop Center et IremboPlus. Comment puis-je vous aider aujourd'hui?",
-      rw: "👋 Muraho! Ndi umufasha wawe wa Irembo. Nshobora kukufasha muri serivisi za IremboGov, One Stop Center, na IremboPlus. Ese nagukorera iki uyu munsi?"
+      en: "👋 Hello! I'm your Delores assistant. I can help you with IremboGov, One Stop Center, and IremboPlus services. How can I help you today?",
+      fr: "👋 Bonjour! Je suis votre assistant Delores. Je peux vous aider avec les services IremboGov, One Stop Center et IremboPlus. Comment puis-je vous aider aujourd'hui?",
+      rw: "👋 Muraho! Ndi umufasha wawe wa Delores. Nshobora kukufasha muri serivisi za IremboGov, One Stop Center, na IremboPlus. Ese nagukorera iki uyu munsi?"
     };
 
     setMessages([{
@@ -63,7 +63,7 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const ChatInterface = () => {
         content: data.response,
         sources: data.sources,
         language: data.language,
-        timestamp: data.timestamp,
+        timestamp: data.timestamp || new Date().toISOString(),
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -127,7 +127,7 @@ const ChatInterface = () => {
                 <span className="text-white font-bold text-xl">I</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Irembo Assistant</h1>
+                <h1 className="text-xl font-bold text-gray-800">Delores Assistant</h1>
                 <p className="text-sm text-gray-500">AI-Powered Support</p>
               </div>
             </div>
