@@ -4,9 +4,13 @@ requests==2.31.0
 beautifulsoup4==4.12.3
 langchain==0.1.12
 langchain-openai==0.0.8
-langchain-community==0.0.28
-langchain-google-genai
 tenacity
+torch
+transformers
+sentence-transformers
+pillow
+accelerate
+bitsandbytes
 faiss-cpu==1.8.0
 python-dotenv==1.0.1
 transformers==4.38.2
