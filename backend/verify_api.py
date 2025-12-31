@@ -12,7 +12,7 @@ if not api_key:
 # List of potential domains to try
 potential_domains = [
     "https://irembo.freshdesk.com",
-    "https://iremboagent.freshdesk.com",
+    "https://iremboagent.freshdesk.com/en/support/home",
     "https://osc.freshdesk.com",
     "https://iremboplus.freshdesk.com"
 ]

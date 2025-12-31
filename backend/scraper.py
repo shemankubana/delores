@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 TARGETS = [
-    "https://iremboagent.freshdesk.com",
+    "https://iremboagent.freshdesk.com/en/support/home",
     "https://osc.freshdesk.com",
     "https://iremboplus.freshdesk.com"
 ]
