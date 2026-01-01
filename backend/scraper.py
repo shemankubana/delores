@@ -238,17 +238,30 @@ def crawl_freshdesk_portal(base_url):
     # Strategy A: Direct Folder Links
     for a in soup.find_all('a', href=True):
         full_link = urljoin(real_url, a['href'])
-        if "/folders/" in a['href']:
+        href = a['href']
+        
+        # Strategy A: Direct Folder Links
+        if "/folders/" in href:
             folder_links.append(full_link)
-        # Strategy B: Category Links -> Folders
-        elif "/categories/" in a['href']:
-            # Dig into category
-            time.sleep(0.3)  # Be nice to the server
-            cat_soup, _ = get_soup(full_link)
-            if cat_soup:
-                for ca in cat_soup.find_all('a', href=True):
-                    if "/folders/" in ca['href']:
-                        folder_links.append(urljoin(full_link, ca['href']))
+
+        # Strategy B: Category Links OR Solution Groups -> Folders
+        # Some portals use /solutions/<id> as a specific category
+        elif "/categories/" in href or ("/solutions/" in href and "/articles/" not in href and any(c.isdigit() for c in href)):
+            
+            # If it is a specific solution page, it might contain articles directly, so add it as a "folder"
+            if "/solutions/" in href:
+                folder_links.append(full_link)
+
+            # Dig into category to find sub-folders
+            try:
+                time.sleep(0.2)  # Be nice to the server
+                cat_soup, _ = get_soup(full_link)
+                if cat_soup:
+                    for ca in cat_soup.find_all('a', href=True):
+                        if "/folders/" in ca['href']:
+                            folder_links.append(urljoin(full_link, ca['href']))
+            except Exception as e:
+                logger.warning(f"      ⚠️ Failed to dig into category {full_link}: {e}")
             
     folder_links = list(set(folder_links))
     logger.info(f"      Found {len(folder_links)} folders.")

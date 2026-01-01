@@ -1,16 +1,55 @@
-# Delores
+# Irembo Chat (Delores)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is an AI-powered chatbot for Irembo services, utilizing a local RAG (Retrieval-Augmented Generation) pipeline to answer user queries based on scraped support articles.
 
-Currently, two official plugins are available:
+## Features
+- **Frontend**: React (Vite) + TailwindCSS
+- **Backend**: FastAPI
+- **AI**: Local LLM (TinyLlama) + RAG (FAISS + SentenceTransformers)
+- **Data**: Pre-scraped knowledge base from Irembo Agent Support
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Prerequisites
+- Node.js (v18+)
+- Python (v3.10+)
 
-## React Compiler
+## Quick Start
+Since the repository includes the pre-built knowledge base (`faiss_index/`), you do **not** need to scrape data manually.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Backend Setup
+Navigate to the root directory and set up the Python environment:
 
-## Expanding the ESLint configuration
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Install dependencies
+pip install -r backend/requirements.txt
+```
+
+**Note**: The first run might take a few minutes to download the local LLM models.
+
+Start the backend server:
+```bash
+uvicorn backend.server:app --reload
+```
+The server will start at `http://localhost:8000`.
+
+### 2. Frontend Setup
+Open a new terminal, navigate to the project root:
+
+```bash
+npm install
+npm run dev
+```
+The frontend will start at `http://localhost:5173`.
+
+## Usage
+- Open the frontend in your browser.
+- Ask questions like "How do I pay for a service?" or "What is Irembo?".
+- The system will use the local `faiss_index` to retrieve answers.
+
+## Project Structure
+- `backend/`: FastAPI server and RAG logic
+- `src/`: React frontend code
+- `faiss_index/`: Vector database (Pre-scraped data)
