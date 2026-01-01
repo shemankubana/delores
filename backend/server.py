@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from .scraper import scrape_portal
 from .rag import RAGPipeline
@@ -34,13 +35,10 @@ def read_root():
 
 @app.post("/chat")
 def chat(request: ChatRequest):
-    result = rag.answer_query(request.query, request.language)
-    return {
-        "response": result["response"],
-        "sources": result["sources"],
-        "language": result["language"],
-        "timestamp": datetime.now().isoformat()
-    }
+    return StreamingResponse(
+        rag.answer_query_stream(request.query, request.language), 
+        media_type="text/plain"
+    )
 
 @app.post("/scrape")
 def trigger_scrape():

@@ -71,3 +71,42 @@ Answer:"""
             "sources": sources,
             "language": language
         }
+
+    def answer_query_stream(self, query, language="en"):
+        if not self.vector_store:
+            yield '{"error": "I am not yet initialized with knowledge. Please trigger a scrape first."}'
+            return
+
+        # 1. Retrieve
+        docs = self.retrieve(query)
+        
+        # 2. Context Construction & Truncation
+        raw_context = "\n\n".join([d.page_content for d in docs])
+        context = raw_context[:6000] 
+        
+        # 3. Prompt construction
+        prompt = f"""You are Delores, a helpful assistant for Irembo services.
+Answer the question based ONLY on the context below.
+If the answer is not in the context, say "I don't know."
+
+Context:
+{context}
+
+Question: {query}
+
+Answer:"""
+        
+        # 4. Prepare Metadata
+        sources = [{"title": d.metadata.get("title", "Unknown"), "url": d.metadata.get("source", "#"), "product": "Irembo"} for d in docs]
+        import json
+        metadata = {
+            "sources": sources,
+            "language": language
+        }
+        
+        # Yield metadata as the first line
+        yield json.dumps(metadata) + "\n"
+        
+        # 5. Generate Stream
+        for token in local_models.generate_response_stream(prompt):
+            yield token
