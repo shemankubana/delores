@@ -1,0 +1,7 @@
+[
+    {
+        "query": "What are the working hours for Irembo support?",
+        "ground_truth": "Irembo support is available 24/7.",
+        "expected_source_url": "https://iremboagent.freshdesk.com/en/support/home"
+    }
+]

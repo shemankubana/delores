@@ -5,7 +5,7 @@ import sys
 def verify_stream():
     url = "http://localhost:8000/chat"
     payload = {
-        "query": "What is Irembo?",
+        "query": "How can I apply for a Driving License on the Irembo platform?",
         "language": "en"
     }
     

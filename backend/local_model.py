@@ -17,6 +17,7 @@ class LocalModelManager:
             cls._instance._initialized = False
         return cls._instance
     
+    def __init__(self):
         if self._initialized:
             return
             
