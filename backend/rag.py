@@ -19,7 +19,18 @@ class RAGPipeline:
             return
             
         print(f"Ingesting {len(documents)} documents locally...")
-        self.vector_store = FAISS.from_documents(documents, self.embeddings)
+        
+        # Split documents into chunks
+        from langchain.text_splitter import RecursiveCharacterTextSplitter
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200,
+            length_function=len,
+        )
+        split_docs = text_splitter.split_documents(documents)
+        print(f"   -> Split into {len(split_docs)} chunks.")
+        
+        self.vector_store = FAISS.from_documents(split_docs, self.embeddings)
         self.vector_store.save_local("faiss_index")
         print("Ingestion complete and index saved.")
 

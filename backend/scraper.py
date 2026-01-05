@@ -83,7 +83,7 @@ def process_images_in_html(soup, base_url):
             
     return "\n".join(captions)
 
-def scrape_article_html(url):
+def scrape_article_html(url, skip_images=True):
     """
     Enhanced article scraper with multiple selector strategies and better debugging.
     """
@@ -168,7 +168,9 @@ def scrape_article_html(url):
 
         if body:
             # 1. Process Images BEFORE stripping tags
-            image_captions = process_images_in_html(body, real_url)
+            image_captions = ""
+            if not skip_images:
+                image_captions = process_images_in_html(body, real_url)
             
             # 2. Clean up junk
             for s in body(["script", "style", "form", "button", "nav", "header", "footer"]): 
@@ -285,7 +287,7 @@ def crawl_freshdesk_portal(base_url):
         
     return list(article_urls)
 
-def scrape_portal(ignored_arg=None):
+def scrape_portal(limit=None, skip_images=True):
     """
     Main scraping function that processes all target sites.
     """
@@ -296,10 +298,19 @@ def scrape_portal(ignored_arg=None):
         
         # Crawl the portal to find article URLs
         urls = crawl_freshdesk_portal(site)
-        logger.info(f"   🕷️ Found {len(urls)} articles to process.")
         
+        if site not in urls:
+            urls.insert(0, site)
+            
+        logger.info(f"   🕷️ Found {len(urls)} articles (including homepage) to process.")
+        
+        count = 0
         for i, url in enumerate(urls):
-            data = scrape_article_html(url)
+            if limit and count >= limit:
+                break
+                
+            data = scrape_article_html(url, skip_images=skip_images)
+            count += 1
             
             if data and len(data["content"]) > 50:
                 all_documents.append(Document(
